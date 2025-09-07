@@ -124,6 +124,20 @@ class UpdateSource:
                     return
                 await self.visit_page(channel_names)
                 self.tasks = []
+
+                #add all channel names from subscribe.txt to the template list (demo.txt)
+                names_from_subscribe = [s for s in self.subscribe_result]
+                # values_from_subscribe = [s for s in self.subscribe_result.values()]                
+                all_channel_names_in_template = [chanel_name
+                            for channels in self.channel_items.values()
+                                for chanel_name in channels.keys()]
+                self.channel_items["Others"] = {}
+                for name in names_from_subscribe:
+                    if name in all_channel_names_in_template:
+                        pass
+                    else:
+                        self.channel_items["Others"][name] = {}
+
                 append_total_data(
                     self.channel_items.items(),
                     self.channel_data,

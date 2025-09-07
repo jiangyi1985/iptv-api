@@ -9,7 +9,7 @@ if config.open_driver:
     except:
         pass
 
-max_retries = 2
+max_retries = 5
 
 
 def retry_func(func, retries=max_retries, name=""):
