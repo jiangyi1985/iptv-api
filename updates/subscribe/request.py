@@ -86,13 +86,16 @@ async def get_channels_by_subscribe_urls(
                     ),
                     open_headers=config.open_headers if m3u_type else False
                 )
+                
+                print(f"Fetched {len(data)} items from {subscribe_url}.")
+                
                 for item in data:
                     name = item["name"]
                     url = item["url"]
                     if name and url:
                         name = format_channel_name(name)
-                        if names and name not in names:
-                            continue
+                        # if names and name not in names:
+                        #     continue
                         url_partition = url.partition("$")
                         url = url_partition[0]
                         info = url_partition[2]

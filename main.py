@@ -81,6 +81,9 @@ class UpdateSource:
             if config.open_method[setting]:
                 if setting == "subscribe":
                     subscribe_urls = get_urls_from_file(constants.subscribe_path)
+
+                    print(f"Read {len(subscribe_urls)} urls from subscribe list.")
+
                     whitelist_urls = get_urls_from_file(constants.whitelist_path)
                     if not os.getenv("GITHUB_ACTIONS") and config.cdn_url:
                         subscribe_urls = [join_url(config.cdn_url, url) if "raw.githubusercontent.com" in url else url
@@ -122,8 +125,13 @@ class UpdateSource:
                 if not channel_names:
                     print(f"❌ No channel names found! Please check the {config.source_file}!")
                     return
+                
+                print(f"Read {len(channel_names)} channel name from template file.")
+
                 await self.visit_page(channel_names)
                 self.tasks = []
+
+                print(f"Fetched {len(self.subscribe_result)} channels from web based on subscribe list.")
 
                 #add all channel names from subscribe.txt to the template list (demo.txt)
                 names_from_subscribe = [s for s in self.subscribe_result]
@@ -131,12 +139,12 @@ class UpdateSource:
                 all_channel_names_in_template = [chanel_name
                             for channels in self.channel_items.values()
                                 for chanel_name in channels.keys()]
-                self.channel_items["Others"] = {}
+                print(f"Adding {len(names_from_subscribe)} channels into template ({len(all_channel_names_in_template)})...")
+                self.channel_items["All Channels"] = {}
                 for name in names_from_subscribe:
-                    if name in all_channel_names_in_template:
-                        pass
-                    else:
-                        self.channel_items["Others"][name] = {}
+                    if name not in all_channel_names_in_template:
+                        self.channel_items["All Channels"][name] = {}
+                print(f"Added. Now have {sum(len(channels) for channels in self.channel_items.values())} channels.")
 
                 append_total_data(
                     self.channel_items.items(),
