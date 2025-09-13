@@ -131,11 +131,10 @@ class UpdateSource:
                 await self.visit_page(channel_names)
                 self.tasks = []
 
-                print(f"Fetched {len(self.subscribe_result)} channels from web based on subscribe list.")
+                print(f"Fetched {len(self.subscribe_result)} channels from web, based on items in subscribe list.")
 
                 #add all channel names from subscribe.txt to the template list (demo.txt)
                 names_from_subscribe = [s for s in self.subscribe_result]
-                # values_from_subscribe = [s for s in self.subscribe_result.values()]                
                 all_channel_names_in_template = [chanel_name
                             for channels in self.channel_items.values()
                                 for chanel_name in channels.keys()]
@@ -146,15 +145,32 @@ class UpdateSource:
                         self.channel_items["All Channels"][name] = {}
                 print(f"Added. Now have {sum(len(channels) for channels in self.channel_items.values())} channels.")
 
+                # print(self.channel_items.items()) 
+                # print(self.channel_data)
+                # print(self.hotel_fofa_result)
+                # print(self.multicast_result)
+                # print(self.hotel_foodie_result)
+                # print(self.subscribe_result)
+                # print(self.online_search_result)
+
                 append_total_data(
-                    self.channel_items.items(),
-                    self.channel_data,
-                    self.hotel_fofa_result,
-                    self.multicast_result,
-                    self.hotel_foodie_result,
-                    self.subscribe_result,
-                    self.online_search_result,
+                    self.channel_items.items(),# 字典<genre名，字典<subscribe的频道名,{}>>, demo.txt的genre和channel + 解析subscribe.txt订阅列表后得到的所有channel名(demo.txt的channel包含上一次的测速数据)
+                    self.channel_data,# 输出结果: 字典<genre名，字典<subscribe的频道名,数组<对象(url,headers,extra_info, id,host,data,delay,speed,resolution,origin,ipv_type,location,isp,catchup)>>>
+                    self.hotel_fofa_result,#{}
+                    self.multicast_result,#{}
+                    self.hotel_foodie_result,#{}
+                    self.subscribe_result,# 字典<subscribe的频道名,数组<对象(url,headers,extra_info)>>, 解析subscribe.txt订阅列表后得到的所有频道信息
+                    self.online_search_result,#{}
                 )
+
+                # print(self.channel_items.items()) 
+                # print(self.channel_data)
+                # print(self.hotel_fofa_result)
+                # print(self.multicast_result)
+                # print(self.hotel_foodie_result)
+                # print(self.subscribe_result)
+                # print(self.online_search_result)
+
                 cache_result = self.channel_data
                 test_result = {}
                 if config.open_speed_test:
@@ -181,12 +197,23 @@ class UpdateSource:
                     )
                     cache_result = merge_objects(cache_result, test_result, match_key="url")
                     self.pbar.close()
-                self.channel_data = sort_channel_result(
+
+                self.channel_data = sort_channel_result(#过滤掉低速频道
                     self.channel_data,
                     result=test_result,
                     filter_host=config.speed_test_filter_host,
                     ipv6_support=self.ipv6_support
                 )
+
+                #copy channels from all channels into new genres (by location/country)
+                for channel_dict in list(self.channel_data.values()):
+                    for channel_name,channel_info_list in channel_dict.items():
+                        if len(channel_info_list) > 1:
+                            print("len(channel_info_list) > 1")
+                        for channel_info in channel_info_list:
+                            if channel_info["location"] !='':
+                                self.channel_data[channel_info["location"]][channel_name] = [channel_info]
+
                 self.update_progress(f"正在生成结果文件", 0)
                 write_channel_to_file(
                     self.channel_data,

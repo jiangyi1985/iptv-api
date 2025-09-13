@@ -114,14 +114,14 @@ def get_channel_items() -> CategoryChannelData:
     """
     Get the channel items from the source file
     """
-    user_source_file = resource_path(config.source_file)
+    user_source_file = resource_path(config.source_file)#demo.txt
     channels = defaultdict(lambda: defaultdict(list))
     live_data = None
     hls_data = None
     if config.open_rtmp:
         live_data = get_name_uri_from_dir(constants.live_path)
         hls_data = get_name_uri_from_dir(constants.hls_path)
-    local_data = get_name_urls_from_file(config.local_file, format_name_flag=True)
+    local_data = get_name_urls_from_file(config.local_file, format_name_flag=True)#local.txt
     whitelist = get_name_urls_from_file(constants.whitelist_path)
     whitelist_urls = get_urls_from_file(constants.whitelist_path)
     whitelist_len = len(list(whitelist.keys()))
@@ -631,10 +631,10 @@ def append_old_data_to_info_data(info_data, cate, name, data, whitelist=None, bl
     Append history and local channel data to total info data
     """
     append_data_to_info_data(
-        info_data,
-        cate,
-        name,
-        data,
+        info_data,#result
+        cate,#genre name
+        name,#channel name
+        data,#old channel infos
         whitelist=whitelist,
         blacklist=blacklist,
         ipv_type_data=ipv_type_data
@@ -686,18 +686,20 @@ def append_total_data(
     open_history = config.open_history
     open_local = config.open_local
     open_rtmp = config.open_rtmp
-    for obj in data.values():
+
+    for obj in data.values():#data is empty
         for value_list in obj.values():
             for value in value_list:
                 if value_ipv_type := value.get("ipv_type", None):
                     url_hosts_ipv_type[get_url_host(value["url"])] = value_ipv_type
-    for cate, channel_obj in items:
-        for name, old_info_list in channel_obj.items():
+
+    for cate, channel_obj in items:#genre name, channel dict
+        for name, old_info_list in channel_obj.items():#channel name, channel infos
             print(f"{name}:", end=" ")
             if (open_history or open_local or open_rtmp) and old_info_list:
                 append_old_data_to_info_data(data, cate, name, old_info_list, whitelist=whitelist, blacklist=blacklist,
                                              ipv_type_data=url_hosts_ipv_type)
-            for method, result in total_result:
+            for method, result in total_result:#源渠道(e.g. 'subscribe'), 源数据(e.g. subscribe的频道数据)
                 if config.open_method[method]:
                     origin_method = get_origin_method_name(method)
                     if not origin_method:
