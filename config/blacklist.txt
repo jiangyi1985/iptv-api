@@ -2,3 +2,16 @@
 # This is the interface blacklist list, the interface matching the keyword will be blocked, one keyword line
 /audio/
 bxtv.3a.ink
+
+#slow
+#27.41.245.32
+#ads
+iptv.catvod.com
+#www.freetv.top
+tvbox6.icu
+111.9.163.109
+23.237.228.134
+
+
+
+
